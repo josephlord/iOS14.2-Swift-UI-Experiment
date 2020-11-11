@@ -8,6 +8,21 @@
 import SwiftUI
 import CoreData
 
+struct DetailView : View {
+    let count: Int
+    let incrementClosure: () -> ()
+    var body: some View {
+        Text("Count: \(count)")
+        Button(action: incrementClosure) {
+            Label("Add Item", systemImage: "plus")
+        }
+    }
+}
+
+class Counter : ObservableObject {
+    @Published var count: Int = 0
+}
+
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
 
@@ -16,21 +31,32 @@ struct ContentView: View {
         animation: .default)
     private var items: FetchedResults<Item>
 
+    @ObservedObject var counter: Counter
+    
     var body: some View {
-        List {
-            ForEach(items) { item in
-                Text("Item at \(item.timestamp!, formatter: itemFormatter)")
-            }
-            .onDelete(perform: deleteItems)
-        }
-        .toolbar {
-            #if os(iOS)
-            EditButton()
-            #endif
-
-            Button(action: addItem) {
-                Label("Add Item", systemImage: "plus")
-            }
+        NavigationView {
+            
+            NavigationLink(
+                destination: DetailView(count: counter.count) {
+                    counter.count += 1
+                },
+                label: {
+                    Text("Detail")
+                })
+//        List {
+//            ForEach(items) { item in
+//                Text("Item at \(item.timestamp!, formatter: itemFormatter)")
+//            }
+//            .onDelete(perform: deleteItems)
+//        }
+//        .toolbar {
+//            #if os(iOS)
+//            EditButton()
+//            #endif
+//
+//            Button(action: addItem) {
+//                Label("Add Item", systemImage: "plus")
+//            }
         }
     }
 
@@ -74,7 +100,8 @@ private let itemFormatter: DateFormatter = {
 }()
 
 struct ContentView_Previews: PreviewProvider {
+    static var counter = Counter()
     static var previews: some View {
-        ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+        ContentView(counter: counter).environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
     }
 }

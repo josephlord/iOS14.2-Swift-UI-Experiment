@@ -11,9 +11,10 @@ import SwiftUI
 struct iOS14_2SwiftUIExperimentApp: App {
     let persistenceController = PersistenceController.shared
 
+    @StateObject var counter = Counter()
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(counter: counter)
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
         }
     }
