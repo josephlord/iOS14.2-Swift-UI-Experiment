@@ -100,14 +100,12 @@ struct ContentView: View {
     }
     
     private func increment(item: Item) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            item.count += 1
-            do {
-                try viewContext.save()
-            } catch {
-                print(error.localizedDescription)
-                assertionFailure(error.localizedDescription)
-            }
+        item.count += 1
+        do {
+            try viewContext.save()
+        } catch {
+            print(error.localizedDescription)
+            assertionFailure(error.localizedDescription)
         }
     }
 
