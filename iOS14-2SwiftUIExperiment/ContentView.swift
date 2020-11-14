@@ -59,11 +59,16 @@ struct ContentView: View {
                             })
                         },
                         label: {
-                            Text("Item at \(item.timestamp!, formatter: itemFormatter)")
+                            Text("Item at \(item.timestamp!, formatter: itemFormatter) - \(item.count)")
                         })
-                    
                 }
                 .onDelete(perform: deleteItems)
+                ForEach(items) { item in
+                    HStack {
+                    Button(action: { increment(item: item) }) { Label("Increment", systemImage: "plus") }
+                    Text("Item at \(item.timestamp!, formatter: itemFormatter) - \(item.count)")
+                    }
+                }
             }
             .toolbar {
                 HStack {
