@@ -36,27 +36,46 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             
-            NavigationLink(
-                destination: DetailView(count: counter.count) {
-                    counter.count += 1
-                },
-                label: {
-                    Text("Detail")
-                })
-//        List {
-//            ForEach(items) { item in
-//                Text("Item at \(item.timestamp!, formatter: itemFormatter)")
-//            }
-//            .onDelete(perform: deleteItems)
-//        }
-//        .toolbar {
-//            #if os(iOS)
-//            EditButton()
-//            #endif
-//
-//            Button(action: addItem) {
-//                Label("Add Item", systemImage: "plus")
-//            }
+//            NavigationLink(
+//                destination: DetailView(count: counter.count) {
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+//                        counter.count += 1
+//                    }
+//                },
+//                label: {
+//                    Text("Detail")
+//                })
+            List {
+                ForEach(items) { item in
+                    NavigationLink(
+                        destination: VStack {
+                            Text("Item at \(item.timestamp!, formatter: itemFormatter)")
+                            Text("Count: \(item.count)")
+                            Button(action: {
+                                increment(item: item)
+                            }
+                                , label: {
+                                Text("Increment")
+                            })
+                        },
+                        label: {
+                            Text("Item at \(item.timestamp!, formatter: itemFormatter)")
+                        })
+                    
+                }
+                .onDelete(perform: deleteItems)
+            }
+            .toolbar {
+                HStack {
+                    #if os(iOS)
+                    EditButton()
+                    #endif
+
+                    Button(action: addItem) {
+                        Label("Add Item", systemImage: "plus")
+                    }
+                }
+            }
         }
     }
 
@@ -64,7 +83,6 @@ struct ContentView: View {
         withAnimation {
             let newItem = Item(context: viewContext)
             newItem.timestamp = Date()
-
             do {
                 try viewContext.save()
             } catch {
@@ -72,6 +90,18 @@ struct ContentView: View {
                 // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
                 let nsError = error as NSError
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+            }
+        }
+    }
+    
+    private func increment(item: Item) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            item.count += 1
+            do {
+                try viewContext.save()
+            } catch {
+                print(error.localizedDescription)
+                assertionFailure(error.localizedDescription)
             }
         }
     }
